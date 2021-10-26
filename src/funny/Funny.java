@@ -2,21 +2,27 @@ package funny;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.util.Random;
 import javax.swing.*;
 
 public class Funny extends JFrame {
 
-    public boolean thbool = true; //hilo
-    public boolean fBool = true; //Fondo
-    public boolean edBool = true; //edificios
+    //graphics 
     public Image fondo;
     public BufferedImage bufferedImage;
     public Graphics graPixel;
-    //colores
+    //Booleanos
+    public boolean thbool = true; //hilo
+    public boolean fBool = true; //Fondo
+    public boolean edBool = true; //edificios
+    //Colores
     public int greenFondo = 255, blueFondo = 0, redFondo = 255;//fondo
-    //edificios posiciones {x,y}
-    public int dimensionesEd[][] = new int[12][12];
+    //Edificios {x,y}
+    public int dimensionesEd[][] = new int[24][24];
+    //public int dimensionesEd[][] = {{23, 15, 35}, {150, 75, 120}};
     public int xEdificios = 0;
+    //luces
+    public int cantidadX = 0, cantidadY = 0, windX = 4, windY = 5;
 
     public static void main(String[] args) {
         new Funny().setVisible(true);
@@ -57,7 +63,7 @@ public class Funny extends JFrame {
                         fondoIncrese();
                     }
                     repaint();
-                    sleep(10);
+                    sleep(100);
                 } catch (Exception e) {
                     System.out.println("Error en el llamar paint en hilos");
                 }
@@ -91,7 +97,7 @@ public class Funny extends JFrame {
             fondo = createImage(getWidth(), getHeight());
             int alto = fondo.getHeight(this);
             int largo = fondo.getWidth(this);
-            
+
             //asignarle los graficos 2D con el bufer de graphics
             graPixel = (Graphics2D) g;
 
@@ -111,13 +117,11 @@ public class Funny extends JFrame {
             //variables de los edificios
             int cantidadEdificios = dimensionesEd[0].length;
             int edPos = 0, edY = 0, edX = 0;
-            graPixel.setColor(Color.BLACK);//color
-
             //calcular cantidad de edificios por el layout
             if (edBool) {
                 for (int i = 0; i < cantidadEdificios; i++) {
                     int largoEd = 15 + (int) (Math.random() * (largo * 0.055));
-                    int altoEd = 15 + (int) (Math.random() * (alto * .35));
+                    int altoEd = 15 + (int) (Math.random() * (alto * .40));
                     dimensionesEd[0][i] += largoEd;
                     dimensionesEd[1][i] += altoEd;
                     xEdificios += dimensionesEd[0][i];
@@ -132,7 +136,10 @@ public class Funny extends JFrame {
                     edPos = 0;
                 }
                 edY = alto - dimensionesEd[1][edPos];
+                graPixel.setColor(Color.BLACK);//color
                 graPixel.fillRect(edX, edY, dimensionesEd[0][edPos], dimensionesEd[1][edPos]);
+                //dibujar luces
+                dibujarLuces(edX, edY, dimensionesEd[0][edPos], dimensionesEd[1][edPos]);
                 edX += dimensionesEd[0][edPos];
                 edPos++;
             }
@@ -143,9 +150,24 @@ public class Funny extends JFrame {
         }
 
         //dibujar puntos de estrellas
-        public void dibujarPixel(int x, int y, Color c, BufferedImage bu) {
-            bu.setRGB(c.getRed(), c.getGreen(), c.getBlue());
-            this.getGraphics().drawImage(bu, x, y, this);
+        public void dibujarLuces(int x, int y, int x1, int y1) {
+            Random random = new Random();
+            int redorridoY = y;
+            graPixel.setColor(Color.white);
+            //determinar cantidades
+            cantidadX = Math.abs((x1) / (windX)) - 1;
+            cantidadY = Math.abs((y1) / (windY)) + 2;
+            //dibujar ventanas 
+            for (int j = 0; j < cantidadY; j++) {
+                int recorridoX = x;
+                for (int i = 0; i <= cantidadX; i++) {
+                    if (random.nextBoolean()) {
+                        graPixel.fillRect(recorridoX + 1, redorridoY + 1, 1, 1);
+                    }
+                    recorridoX += windX;
+                }
+                redorridoY += windY;
+            }
         }
     }
 }
