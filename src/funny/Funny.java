@@ -14,15 +14,17 @@ public class Funny extends JFrame {
     //Booleanos
     public boolean thbool = true; //hilo
     public boolean fBool = true; //Fondo
+    public boolean eBool = true; //Fondo
     public boolean edBool = true; //edificios
     //Colores
     public int greenFondo = 255, blueFondo = 0, redFondo = 255;//fondo
-    //Edificios {x,y}
-    public int dimensionesEd[][] = new int[24][24];
-    //public int dimensionesEd[][] = {{23, 15, 35}, {150, 75, 120}};
+    //Edificios {x,y} se modifica dimensiones
+    public int dimensionesEd[][] = new int[25][25];
     public int xEdificios = 0;
-    //luces
-    public int cantidadX = 0, cantidadY = 0, windX = 4, windY = 5;
+    //ventanas solo se modifica wind
+    public int cantidadX = 0, cantidadY = 0, windX = 8, windY = 10;
+    //estrellas 
+    public int cantEstrellas = 30;
 
     public static void main(String[] args) {
         new Funny().setVisible(true);
@@ -73,18 +75,29 @@ public class Funny extends JFrame {
         //Cambiar COlor de Fondo
         public void fondoIncrese() {
             if (greenFondo <= 105) {
+                eBool = true;
                 redFondo--;
+                greenFondo--;
+                blueFondo++;
+            } else {
+                eBool = false;
+                greenFondo--;
+                blueFondo++;
             }
-            greenFondo--;
-            blueFondo++;
+
         }
 
         public void fondoIncrement() {
             if (greenFondo <= 104) {
                 redFondo++;
+                eBool = true;
+                greenFondo++;
+                blueFondo--;
+            } else {
+                eBool = false;
+                greenFondo++;
+                blueFondo--;
             }
-            greenFondo++;
-            blueFondo--;
         }
 
     }
@@ -98,19 +111,48 @@ public class Funny extends JFrame {
             int alto = fondo.getHeight(this);
             int largo = fondo.getWidth(this);
 
-            //asignarle los graficos 2D con el bufer de graphics
-            graPixel = (Graphics2D) g;
-
-            fondo(alto, largo);
-            ciudad(alto, largo);
-
-            update(g);
+            update(g, largo, alto);
         }
 
+        public void update(Graphics g, int largo, int alto) {
+            //asignarle los graficos 2D con el bufer de graphics
+            graPixel = (Graphics2D) g;
+            graPixel.drawImage(fondo, alto, alto, this);
+            fondo(alto, largo);
+            estrellas(alto, largo);
+            lunaSol(alto, largo);
+            ciudad(alto, largo);
+        }
+        //Dibujar Fondo
         public void fondo(int alto, int largo) {
             Color color = new Color(redFondo, greenFondo, blueFondo);
             graPixel.setColor(color);
             graPixel.fillRect(0, 0, largo, alto);
+        }
+        //Dibujar Luna
+        public void lunaSol(int alto, int largo) {
+            
+        }
+        //Dibujar estrellas
+        public void estrellas(int alto, int largo) {
+            if (eBool) {
+                //Calcular las posiciones del Jframe
+                int posicionesx = Math.abs(largo / cantEstrellas);
+                Random random = new Random();
+                graPixel.setColor(Color.LIGHT_GRAY);
+                //Dibujar Estrellas
+                for (int j = 0; j < alto; j++) {
+                    int esX = 0;
+                    if (random.nextBoolean()) {
+                        for (int i = 0; i <= posicionesx; i++) {
+                            if (random.nextBoolean()) {
+                                graPixel.fillRect(esX, j, 1, 1);
+                            }
+                            esX += (int) Math.floor(Math.random() * (80) + 5);
+                        }
+                    }
+                }
+            }
         }
 
         public void ciudad(int alto, int largo) {
@@ -120,7 +162,7 @@ public class Funny extends JFrame {
             //calcular cantidad de edificios por el layout
             if (edBool) {
                 for (int i = 0; i < cantidadEdificios; i++) {
-                    int largoEd = 15 + (int) (Math.random() * (largo * 0.055));
+                    int largoEd = 18 + (int) (Math.random() * (largo * 0.035));
                     int altoEd = 15 + (int) (Math.random() * (alto * .40));
                     dimensionesEd[0][i] += largoEd;
                     dimensionesEd[1][i] += altoEd;
@@ -128,9 +170,17 @@ public class Funny extends JFrame {
                 }
                 edBool = false;
             }
-
-            //dibujar edificios
+            
+            
+            //Calcular la cantida de repeticiones
             int jFrameEdificios = Math.abs(largo / xEdificios) * cantidadEdificios;
+            //Centrado
+            if (jFrameEdificios == cantidadEdificios*2) {
+                edX = Math.abs(largo - xEdificios*2)/2;
+            } else {
+                edX = Math.abs(largo - xEdificios) / 2;
+            }
+            //Dibujar Edificios
             for (int i = 0; i < jFrameEdificios; i++) {
                 if (edPos > cantidadEdificios - 1) {
                     edPos = 0;
@@ -138,31 +188,27 @@ public class Funny extends JFrame {
                 edY = alto - dimensionesEd[1][edPos];
                 graPixel.setColor(Color.BLACK);//color
                 graPixel.fillRect(edX, edY, dimensionesEd[0][edPos], dimensionesEd[1][edPos]);
-                //dibujar luces
-                dibujarLuces(edX, edY, dimensionesEd[0][edPos], dimensionesEd[1][edPos]);
+                //dibujar ventanas
+                dibujarVentanas(edX, edY, dimensionesEd[0][edPos], dimensionesEd[1][edPos]);
                 edX += dimensionesEd[0][edPos];
                 edPos++;
             }
         }
 
-        public void update(Graphics g) {
-
-        }
-
-        //dibujar puntos de estrellas
-        public void dibujarLuces(int x, int y, int x1, int y1) {
+        //dibujar ventanas
+        public void dibujarVentanas(int x, int y, int x1, int y1) {
             Random random = new Random();
             int redorridoY = y;
             graPixel.setColor(Color.white);
-            //determinar cantidades
-            cantidadX = Math.abs((x1) / (windX)) - 1;
+            //CAntidad de repeticiones
+            cantidadX = Math.abs((x1) / (windX));
             cantidadY = Math.abs((y1) / (windY)) + 2;
             //dibujar ventanas 
             for (int j = 0; j < cantidadY; j++) {
                 int recorridoX = x;
                 for (int i = 0; i <= cantidadX; i++) {
                     if (random.nextBoolean()) {
-                        graPixel.fillRect(recorridoX + 1, redorridoY + 1, 1, 1);
+                        graPixel.fillRect(recorridoX, redorridoY + 1, 1, 1);
                     }
                     recorridoX += windX;
                 }
