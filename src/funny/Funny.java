@@ -14,7 +14,9 @@ public class Funny extends JFrame {
     //Booleanos
     public boolean thbool = true; //hilo
     public boolean fBool = true; //Fondo
-    public boolean eBool = true; //Fondo
+    public boolean eBool = true; //Estrellas
+    public boolean eSunMoon = true; //Sol
+    public boolean firstSun = true; //Primer sol
     public boolean edBool = true; //edificios
     //Colores
     public int greenFondo = 255, blueFondo = 0, redFondo = 255;//fondo
@@ -25,6 +27,8 @@ public class Funny extends JFrame {
     public int cantidadX = 0, cantidadY = 0, windX = 8, windY = 10;
     //estrellas 
     public int cantEstrellas = 30;
+    //sol y luna
+    public int posSol = 0, posLuna = 0;
 
     public static void main(String[] args) {
         new Funny().setVisible(true);
@@ -65,7 +69,7 @@ public class Funny extends JFrame {
                         fondoIncrese();
                     }
                     repaint();
-                    sleep(100);
+                    sleep(10);
                 } catch (Exception e) {
                     System.out.println("Error en el llamar paint en hilos");
                 }
@@ -75,14 +79,20 @@ public class Funny extends JFrame {
         //Cambiar COlor de Fondo
         public void fondoIncrese() {
             if (greenFondo <= 105) {
-                eBool = true;
                 redFondo--;
                 greenFondo--;
                 blueFondo++;
+                //aparecer estrellas
+                eBool = true;
+
             } else {
-                eBool = false;
                 greenFondo--;
                 blueFondo++;
+                //se oculta estrellas
+                eBool = false;
+                //se oculta el sol
+                posSol++;
+
             }
 
         }
@@ -90,13 +100,18 @@ public class Funny extends JFrame {
         public void fondoIncrement() {
             if (greenFondo <= 104) {
                 redFondo++;
+                greenFondo++;
+                blueFondo--;
+                //aparecer estrellas
                 eBool = true;
-                greenFondo++;
-                blueFondo--;
             } else {
-                eBool = false;
+                
                 greenFondo++;
                 blueFondo--;
+                //ocultar estrellas
+                eBool = false;
+                //sale el sol
+                posSol++;
             }
         }
 
@@ -123,16 +138,25 @@ public class Funny extends JFrame {
             lunaSol(alto, largo);
             ciudad(alto, largo);
         }
+
         //Dibujar Fondo
         public void fondo(int alto, int largo) {
             Color color = new Color(redFondo, greenFondo, blueFondo);
             graPixel.setColor(color);
             graPixel.fillRect(0, 0, largo, alto);
         }
+
         //Dibujar Luna
         public void lunaSol(int alto, int largo) {
-            
+            int xPosSol = 0;
+            int xLuna = 0;
+
+            xPosSol += posSol * Math.abs(largo / 255);//velocidad
+            graPixel.setColor(Color.RED);
+            graPixel.fillOval(xPosSol, 250, 100, 100);
+
         }
+
         //Dibujar estrellas
         public void estrellas(int alto, int largo) {
             if (eBool) {
@@ -163,20 +187,19 @@ public class Funny extends JFrame {
             if (edBool) {
                 for (int i = 0; i < cantidadEdificios; i++) {
                     int largoEd = 18 + (int) (Math.random() * (largo * 0.035));
-                    int altoEd = 15 + (int) (Math.random() * (alto * .40));
+                    int altoEd = 15 + (int) (Math.random() * (alto * .60));
                     dimensionesEd[0][i] += largoEd;
                     dimensionesEd[1][i] += altoEd;
                     xEdificios += dimensionesEd[0][i];
                 }
                 edBool = false;
             }
-            
-            
+
             //Calcular la cantida de repeticiones
             int jFrameEdificios = Math.abs(largo / xEdificios) * cantidadEdificios;
             //Centrado
-            if (jFrameEdificios == cantidadEdificios*2) {
-                edX = Math.abs(largo - xEdificios*2)/2;
+            if (jFrameEdificios == cantidadEdificios * 2) {
+                edX = Math.abs(largo - xEdificios * 2) / 2;
             } else {
                 edX = Math.abs(largo - xEdificios) / 2;
             }
