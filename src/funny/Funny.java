@@ -15,7 +15,7 @@ public class Funny extends JFrame {
     public boolean thbool = true; //hilo
     public boolean fBool = true; //Fondo
     public boolean eBool = true; //Estrellas
-    public boolean eSunMoon = true; //Sol
+    public boolean eSun = false; //Sol
     public boolean firstSun = true; //Primer sol
     public boolean edBool = true; //edificios
     //Colores
@@ -28,7 +28,7 @@ public class Funny extends JFrame {
     //estrellas 
     public int cantEstrellas = 30;
     //sol y luna
-    public int posSol = 0, posLuna = 0;
+    public int posSunX = 1, posSunY = 150, velocidad = 260, tamSunLuna = 145;
 
     public static void main(String[] args) {
         new Funny().setVisible(true);
@@ -78,40 +78,43 @@ public class Funny extends JFrame {
 
         //Cambiar COlor de Fondo
         public void fondoIncrese() {
+            //atardecer
             if (greenFondo <= 105) {
                 redFondo--;
                 greenFondo--;
                 blueFondo++;
                 //aparecer estrellas
                 eBool = true;
-
+                //apagar el sol
+                if (greenFondo <= 53) {
+                    firstSun = false;
+                    eSun = false;
+                    posSunX = 0;
+                }
             } else {
                 greenFondo--;
                 blueFondo++;
                 //se oculta estrellas
                 eBool = false;
-                //se oculta el sol
-                posSol++;
-
             }
-
         }
 
         public void fondoIncrement() {
+            //amanecer
             if (greenFondo <= 104) {
                 redFondo++;
                 greenFondo++;
                 blueFondo--;
                 //aparecer estrellas
                 eBool = true;
+                //aparecer el sol
+                if (greenFondo >= 53) {
+                    eSun = true;
+                }
             } else {
-                
                 greenFondo++;
                 blueFondo--;
-                //ocultar estrellas
-                eBool = false;
-                //sale el sol
-                posSol++;
+                eBool = false;//estrellas
             }
         }
 
@@ -148,12 +151,29 @@ public class Funny extends JFrame {
 
         //Dibujar Luna
         public void lunaSol(int alto, int largo) {
-            int xPosSol = 0;
-            int xLuna = 0;
+            int xPosSol = 0, yPosSol = 0;
+            int dis8 = largo * (7 / 8), dis1 = largo * (3 / 8);
 
-            xPosSol += posSol * Math.abs(largo / 255);//velocidad
-            graPixel.setColor(Color.RED);
-            graPixel.fillOval(xPosSol, 250, 100, 100);
+            if (firstSun) {
+                graPixel.setColor(Color.RED);
+                xPosSol = largo / 2;
+                xPosSol += (posSunX) * Math.abs(largo / velocidad);//velocidad 
+                posSunY++;
+                graPixel.fillOval(xPosSol, posSunY, tamSunLuna, tamSunLuna);
+                posSunX += 1;
+            }
+            if (eSun) {
+                graPixel.setColor(Color.RED);
+                xPosSol += (posSunX) * Math.abs(largo / velocidad);//velocidad
+                System.out.println(posSunY);
+                if (xPosSol <= 603) {
+                    posSunY--;
+                } else {
+                    posSunY++;
+                }
+                graPixel.fillOval(xPosSol, posSunY, tamSunLuna, tamSunLuna);
+                posSunX += 1;
+            }
 
         }
 
