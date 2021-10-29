@@ -15,8 +15,6 @@ public class Funny extends JFrame {
     public boolean thbool = true; //hilo
     public boolean fBool = true; //Fondo
     public boolean eBool = true; //Estrellas
-    public boolean eSun = false; //Sol
-    public boolean firstSun = true; //Primer sol
     public boolean edBool = true; //edificios
     //Colores
     public int greenFondo = 255, blueFondo = 0, redFondo = 255;//fondo
@@ -28,7 +26,7 @@ public class Funny extends JFrame {
     //estrellas 
     public int cantEstrellas = 30;
     //sol y luna
-    public int posSunX = 1, posSunY = 150, velocidad = 260, tamSunLuna = 145;
+    public int posSunMoonX = 1, posSunMoonY = 1, whSunMoon = 145;
 
     public static void main(String[] args) {
         new Funny().setVisible(true);
@@ -69,7 +67,7 @@ public class Funny extends JFrame {
                         fondoIncrese();
                     }
                     repaint();
-                    sleep(10);
+                    sleep(100);
                 } catch (Exception e) {
                     System.out.println("Error en el llamar paint en hilos");
                 }
@@ -78,6 +76,7 @@ public class Funny extends JFrame {
 
         //Cambiar COlor de Fondo
         public void fondoIncrese() {
+            posSunMoonY++;
             //atardecer
             if (greenFondo <= 105) {
                 redFondo--;
@@ -85,12 +84,6 @@ public class Funny extends JFrame {
                 blueFondo++;
                 //aparecer estrellas
                 eBool = true;
-                //apagar el sol
-                if (greenFondo <= 53) {
-                    firstSun = false;
-                    eSun = false;
-                    posSunX = 0;
-                }
             } else {
                 greenFondo--;
                 blueFondo++;
@@ -100,6 +93,7 @@ public class Funny extends JFrame {
         }
 
         public void fondoIncrement() {
+            posSunMoonY--;
             //amanecer
             if (greenFondo <= 104) {
                 redFondo++;
@@ -107,10 +101,6 @@ public class Funny extends JFrame {
                 blueFondo--;
                 //aparecer estrellas
                 eBool = true;
-                //aparecer el sol
-                if (greenFondo >= 53) {
-                    eSun = true;
-                }
             } else {
                 greenFondo++;
                 blueFondo--;
@@ -148,35 +138,19 @@ public class Funny extends JFrame {
             graPixel.setColor(color);
             graPixel.fillRect(0, 0, largo, alto);
         }
-
-        //Dibujar Luna
+        //Dibujar Sol
         public void lunaSol(int alto, int largo) {
-            int xPosSol = 0, yPosSol = 0;
-            int dis8 = largo * (7 / 8), dis1 = largo * (3 / 8);
+            int xPosSol = (posSunMoonX) * Math.abs(largo / 255);
+            int yPosSol = posSunMoonY * Math.abs(alto / 125);
+            graPixel.setColor(Color.WHITE);
 
-            if (firstSun) {
-                graPixel.setColor(Color.RED);
-                xPosSol = largo / 2;
-                xPosSol += (posSunX) * Math.abs(largo / velocidad);//velocidad 
-                posSunY++;
-                graPixel.fillOval(xPosSol, posSunY, tamSunLuna, tamSunLuna);
-                posSunX += 1;
+            //xPosSol = posSunMoonX;
+            if (xPosSol > largo) {
+                posSunMoonX = 0;
             }
-            if (eSun) {
-                graPixel.setColor(Color.RED);
-                xPosSol += (posSunX) * Math.abs(largo / velocidad);//velocidad
-                System.out.println(posSunY);
-                if (xPosSol <= 603) {
-                    posSunY--;
-                } else {
-                    posSunY++;
-                }
-                graPixel.fillOval(xPosSol, posSunY, tamSunLuna, tamSunLuna);
-                posSunX += 1;
-            }
-
+            graPixel.fillOval(xPosSol, yPosSol, whSunMoon, whSunMoon);
+            posSunMoonX++;
         }
-
         //Dibujar estrellas
         public void estrellas(int alto, int largo) {
             if (eBool) {
@@ -242,7 +216,15 @@ public class Funny extends JFrame {
         public void dibujarVentanas(int x, int y, int x1, int y1) {
             Random random = new Random();
             int redorridoY = y;
-            graPixel.setColor(Color.white);
+
+            //colors
+            int max = 255, min = 125, ming = 100; //colors
+            int r = (int) Math.floor(Math.random() * (max - min + 1) + min);
+            int b = (int) Math.floor(Math.random() * (max - min + 1) + min);
+            int g = (int) Math.floor(Math.random() * (max - ming + 1) + ming);
+            Color color = new Color(r, g, b);
+            graPixel.setColor(color);
+            
             //CAntidad de repeticiones
             cantidadX = Math.abs((x1) / (windX));
             cantidadY = Math.abs((y1) / (windY)) + 2;
