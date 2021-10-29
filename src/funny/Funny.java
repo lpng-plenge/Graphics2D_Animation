@@ -22,11 +22,16 @@ public class Funny extends JFrame {
     public int dimensionesEd[][] = new int[25][25];
     public int xEdificios = 0;
     //ventanas solo se modifica wind
-    public int cantidadX = 0, cantidadY = 0, windX = 8, windY = 10;
+    public int cantidadX = 0, cantidadY = 0, windX = 9, windY = 15;
     //estrellas 
-    public int cantEstrellas = 30;
+    public int cantEstrellas = 300; //entre mas mostrara menos
     //sol y luna
     public int posSunMoonX = 1, posSunMoonY = 1, whSunMoon = 145;
+    //nubes
+    public int nubesX[] = {0, 300,600};
+    public int cantidadNubes=120;
+    //planeta
+    public int posPlanetX = -100;
 
     public static void main(String[] args) {
         new Funny().setVisible(true);
@@ -75,7 +80,7 @@ public class Funny extends JFrame {
         }
 
         //Cambiar COlor de Fondo
-        public void fondoIncrese() {
+        void fondoIncrese() {
             posSunMoonY++;
             //atardecer
             if (greenFondo <= 105) {
@@ -92,7 +97,7 @@ public class Funny extends JFrame {
             }
         }
 
-        public void fondoIncrement() {
+        void fondoIncrement() {
             posSunMoonY--;
             //amanecer
             if (greenFondo <= 104) {
@@ -107,7 +112,6 @@ public class Funny extends JFrame {
                 eBool = false;//estrellas
             }
         }
-
     }
 
     public class Graficos extends JPanel {
@@ -129,33 +133,23 @@ public class Funny extends JFrame {
             fondo(alto, largo);
             estrellas(alto, largo);
             lunaSol(alto, largo);
+            planeta(alto, largo);
+            nubes(alto, largo);
             ciudad(alto, largo);
         }
 
         //Dibujar Fondo
-        public void fondo(int alto, int largo) {
+        void fondo(int alto, int largo) {
             Color color = new Color(redFondo, greenFondo, blueFondo);
             graPixel.setColor(color);
             graPixel.fillRect(0, 0, largo, alto);
         }
-        //Dibujar Sol
-        public void lunaSol(int alto, int largo) {
-            int xPosSol = (posSunMoonX) * Math.abs(largo / 255);
-            int yPosSol = posSunMoonY * Math.abs(alto / 125);
-            graPixel.setColor(Color.WHITE);
 
-            //xPosSol = posSunMoonX;
-            if (xPosSol > largo) {
-                posSunMoonX = 0;
-            }
-            graPixel.fillOval(xPosSol, yPosSol, whSunMoon, whSunMoon);
-            posSunMoonX++;
-        }
         //Dibujar estrellas
-        public void estrellas(int alto, int largo) {
+        void estrellas(int alto, int largo) {
             if (eBool) {
                 //Calcular las posiciones del Jframe
-                int posicionesx = Math.abs(largo / cantEstrellas);
+                int posicionesx = largo;
                 Random random = new Random();
                 graPixel.setColor(Color.LIGHT_GRAY);
                 //Dibujar Estrellas
@@ -166,14 +160,74 @@ public class Funny extends JFrame {
                             if (random.nextBoolean()) {
                                 graPixel.fillRect(esX, j, 1, 1);
                             }
-                            esX += (int) Math.floor(Math.random() * (80) + 5);
+                            esX += (int) Math.floor(Math.random() * (cantEstrellas) + 5);
                         }
                     }
                 }
             }
         }
 
-        public void ciudad(int alto, int largo) {
+        //Dibujar Sol
+        void lunaSol(int alto, int largo) {
+            int xPosSol = (posSunMoonX) * Math.abs(largo / 255);
+            int yPosSol = posSunMoonY * Math.abs(alto / 125);
+
+            //xPosSol = posSunMoonX;
+            if (xPosSol > largo) {
+                posSunMoonX = 0;
+            }
+            //sol 
+            graPixel.setColor(Color.WHITE);
+            graPixel.fillOval(xPosSol, yPosSol, whSunMoon, whSunMoon);
+            posSunMoonX++;
+        }
+
+        //Dibujar Planeta
+        void planeta(int alto, int largo) {
+            graPixel.setColor(Color.WHITE);
+            int xpos = posPlanetX, ypos = Math.abs(alto / 10);
+
+            if (xpos == largo) {
+                posPlanetX = -100;
+            } else {
+                graPixel.setColor(new Color(217, 187, 184));
+                graPixel.drawOval(xpos, ypos + 20, 100, 10);//anillos
+                graPixel.setColor(new Color(191, 54, 4));
+                graPixel.fillOval(xpos + 25, ypos + 5, 50, 40);//planeta
+                posPlanetX++;
+            }
+
+        }
+
+        //Dibujar Nubes
+        void nubes(int alto, int largo) {
+            //nubes
+            graPixel.setColor(new Color(242, 242, 242));
+            int altura = (int) alto / 10;
+            int altura2 = (int) (alto / 10) - 5;
+            int tam = nubesX.length;
+            
+            for (int i = 0; i < tam; i++) {
+                if (nubesX[i] >= largo/2) {
+                    nubesX[i] = -150;
+                }
+            }
+            int tam2 = alto / cantidadNubes;
+            for (int j = 0; j < tam2; j++) {
+                for (int i = 0; i < tam; i++) {
+                    int xPosNube = (nubesX[i]) * Math.abs(largo / 255);
+                    int xPosTop = ((nubesX[i]) * Math.abs(largo / 255)) + 50;
+                    int multiplo = (int) 60 * j;
+                    graPixel.fillOval(xPosNube -multiplo, altura + multiplo, 150, 10);
+                    graPixel.fillOval(xPosTop -multiplo, altura2 + multiplo, 50, 10);
+                    nubesX[i] += 1;
+                }
+            }
+
+        }
+
+        //dibujar ciudad
+        void ciudad(int alto, int largo) {
             //variables de los edificios
             int cantidadEdificios = dimensionesEd[0].length;
             int edPos = 0, edY = 0, edX = 0;
@@ -213,18 +267,13 @@ public class Funny extends JFrame {
         }
 
         //dibujar ventanas
-        public void dibujarVentanas(int x, int y, int x1, int y1) {
+        void dibujarVentanas(int x, int y, int x1, int y1) {
             Random random = new Random();
             int redorridoY = y;
-
             //colors
-            int max = 255, min = 125, ming = 100; //colors
-            int r = (int) Math.floor(Math.random() * (max - min + 1) + min);
-            int b = (int) Math.floor(Math.random() * (max - min + 1) + min);
-            int g = (int) Math.floor(Math.random() * (max - ming + 1) + ming);
-            Color color = new Color(r, g, b);
+            Color color = new Color(141,130,66);
             graPixel.setColor(color);
-            
+
             //CAntidad de repeticiones
             cantidadX = Math.abs((x1) / (windX));
             cantidadY = Math.abs((y1) / (windY)) + 2;
@@ -240,5 +289,6 @@ public class Funny extends JFrame {
                 redorridoY += windY;
             }
         }
+
     }
 }
